@@ -1,0 +1,64 @@
+{
+  "name": "cursor-proxy",
+  "displayName": "Cursor Proxy",
+  "description": "Run a local Anthropic-compatible proxy that routes Claude Code through Cursor's models",
+  "version": "1.0.9",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sammy970/cursor-proxy-api-extension"
+  },
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursorProxy.toggle",
+        "title": "Cursor Proxy: Toggle On/Off"
+      },
+      {
+        "command": "cursorProxy.showLogs",
+        "title": "Cursor Proxy: Show Logs"
+      },
+      {
+        "command": "cursorProxy.copySettings",
+        "title": "Cursor Proxy: Copy .claude/settings.json snippet"
+      }
+    ],
+    "configuration": {
+      "title": "Cursor Proxy",
+      "properties": {
+        "cursorProxy.port": {
+          "type": "number",
+          "default": 3010,
+          "description": "Port the proxy server listens on"
+        },
+        "cursorProxy.model": {
+          "type": "string",
+          "default": "anthropic/claude-sonnet-4.6",
+          "description": "Cursor model to use"
+        },
+        "cursorProxy.startOnActivation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start the proxy when the extension activates"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -watch -p tsconfig.json",
+    "package": "npx @vscode/vsce package --no-dependencies --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {}
+}
