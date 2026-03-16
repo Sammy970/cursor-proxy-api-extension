@@ -1,8 +1,9 @@
 {
-  "name": "cursor-proxy",
+  "name": "cursor-proxy-api",
   "displayName": "Cursor Proxy",
-  "description": "Run a local Anthropic-compatible proxy that routes Claude Code through Cursor's models",
+  "description": "Run a local Anthropic-compatible proxy that routes Claude Code through cursor.com/api/chat",
   "version": "1.0.9",
+  "publisher": "Sammy970",
   "engines": { "vscode": "^1.85.0" },
   "categories": ["AI", "Programming Languages", "Other"],
   "license": "MIT",
@@ -53,11 +54,10 @@
     "vscode:prepublish": "npm run build",
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -watch -p tsconfig.json",
-    "package": "npx @vscode/vsce package --no-dependencies --allow-missing-repository"
+    "package": "npm_config_registry=https://registry.npmjs.org npx @vscode/vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/uuid": "^9.0.0",
     "@types/vscode": "^1.85.0",
     "typescript": "^5.0.0"
   },

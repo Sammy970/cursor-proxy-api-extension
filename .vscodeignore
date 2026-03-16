@@ -1,0 +1,10 @@
+node_modules/**
+src/**
+media/**
+out/**/*.map
+out/log-panel.js
+tsconfig.json
+package-lock.json
+.gitignore
+.vscodeignore
+*.vsix
