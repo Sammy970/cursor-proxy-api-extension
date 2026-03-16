@@ -4,7 +4,8 @@
   "description": "Run a local Anthropic-compatible proxy that routes Claude Code through Cursor's models",
   "version": "1.0.9",
   "engines": { "vscode": "^1.85.0" },
-  "categories": ["Other"],
+  "categories": ["AI", "Programming Languages", "Other"],
+  "license": "MIT",
   "icon": "icon.png",
   "repository": {
     "type": "git",
