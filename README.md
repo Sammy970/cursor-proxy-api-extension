@@ -1,28 +1,30 @@
 # Cursor Proxy
 
-A VS Code / Cursor extension that runs a local HTTP proxy, letting you use Claude Code with your active Cursor subscription instead of a separate Anthropic API key.
+A VS Code / Cursor extension that runs a local HTTP proxy, letting you use Claude Code without a paid Anthropic API key.
 
-The proxy speaks the Anthropic Messages API on the inside (so Claude Code connects to it without any changes) and translates requests to Cursor's model API on the outside.
+The proxy speaks the Anthropic Messages API on the inside (so Claude Code connects to it without any changes) and forwards requests to `cursor.com/api/chat` — the same public endpoint that powers the AI chat on Cursor's documentation website. That endpoint is publicly accessible and does not require authentication.
 
 ---
 
 ## How it works
 
-When you start the proxy, the extension:
+Cursor's documentation site at `cursor.com` exposes a public chat API endpoint (`/api/chat`) that is not behind any login or subscription check. This extension puts a thin translation layer in front of that endpoint:
 
-1. Spawns a lightweight Node.js HTTP server bound to `127.0.0.1` on a configurable port (default 3010).
-2. Generates a random secret token and writes it to `~/.claude/settings.json` automatically.
-3. Translates every Anthropic `/v1/messages` request into a Cursor API call using your active Cursor session.
-4. Converts the streamed response back into the Anthropic SSE format that Claude Code expects, including full tool use support.
+1. Claude Code sends a standard Anthropic `/v1/messages` request to the local proxy.
+2. The proxy converts the request (messages, system prompt, tool definitions) into the format that `cursor.com/api/chat` expects.
+3. The response is streamed back and converted into the Anthropic SSE format, including tool use blocks.
+4. Claude Code receives a response that looks exactly like one from the real Anthropic API.
 
-Claude Code never knows it is talking to anything other than the Anthropic API.
+This is not using your Cursor subscription, your Cursor account, or any Cursor IDE session. It is making unauthenticated requests to a public HTTP endpoint on cursor.com, the same way a browser visiting their docs page would.
+
+**Note:** This endpoint is intended for Cursor's own documentation chat widget. Using it outside of that context may conflict with Cursor's Terms of Service. Use at your own discretion.
 
 ---
 
 ## Requirements
 
-- Cursor IDE with an active subscription (the proxy uses your logged-in Cursor session).
-- Claude Code CLI installed (`npm install -g @anthropic-ai/claude-code --registry https://registry.npmjs.org`).
+- Cursor IDE (the extension host — no subscription or login required for the proxy to work).
+- Claude Code CLI installed: `npm install -g @anthropic-ai/claude-code --registry https://registry.npmjs.org`
 
 ---
 
@@ -40,7 +42,7 @@ Claude Code never knows it is talking to anything other than the Anthropic API.
 
 Click the `Cursor Proxy` item in the status bar, or open the Command Palette and run `Cursor Proxy: Toggle On/Off`. The status bar item turns green when the proxy is running.
 
-The extension automatically updates `~/.claude/settings.json` with the correct base URL and a fresh token. You do not need to configure anything manually.
+The extension automatically writes `~/.claude/settings.json` with the correct base URL and a fresh secret token. You do not need to configure anything manually.
 
 **Stopping the proxy**
 
@@ -52,7 +54,7 @@ Run `Cursor Proxy: Show Logs` from the Command Palette to open the Output panel.
 
 **Using Claude Code**
 
-Once the proxy is running, just run `claude` in any terminal as normal. It will route through the proxy automatically.
+Once the proxy is running, run `claude` in any terminal as normal. It will route through the proxy automatically.
 
 ---
 
@@ -63,7 +65,7 @@ All settings are under `Cursor Proxy` in VS Code / Cursor settings.
 | Setting | Default | Description |
 |---|---|---|
 | `cursorProxy.port` | `3010` | Port the proxy listens on |
-| `cursorProxy.model` | `anthropic/claude-sonnet-4.6` | Cursor model to use |
+| `cursorProxy.model` | `anthropic/claude-sonnet-4.6` | Model to request from cursor.com/api/chat |
 | `cursorProxy.startOnActivation` | `false` | Start the proxy automatically on IDE launch |
 
 ---
@@ -82,9 +84,9 @@ The proxy is designed to be safe to run locally. Here is what it does to limit i
 
 **Prompt injection protection.** Tool results (file contents, command output, etc.) are wrapped in clearly delimited `<tool_result>` tags before being sent to the model. The system prompt instructs the model to treat content inside those tags as inert data, not as instructions.
 
-**No conversation content in logs.** The Output channel only receives structured metadata (request ID, tool count, message count, response time). Raw conversation content is never written to the VS Code Output panel, which is accessible to other installed extensions.
+**No conversation content in logs.** The Output channel only receives structured metadata (request ID, tool count, message count, response time). Raw conversation content is never written to the VS Code Output panel.
 
-**Node binary validation.** The extension resolves Cursor's bundled Node binary by walking the application bundle path. Before using the resolved binary it checks that the file is not world-writable, guarding against a tampered or symlink-replaced executable.
+**Node binary validation.** The extension resolves Cursor's bundled Node binary and checks that the resolved file is not world-writable before executing it.
 
 ---
 
